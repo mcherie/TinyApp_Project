@@ -9,10 +9,19 @@
   <title>TinyApp</title>
 </head>
 
+<header>
+
+        <% include ./partials/_header %>
+
+</header>
 
 
 <body style="font-size:20px; padding:50px;">
     <!-- Add EJS code here -->
+
+    <a href="#">Create New TinyURL</a>
+
+    <h4> My URLs </h4>
 
     <ul>
         <% for (var urlProperty in urls) { %>
@@ -21,7 +30,6 @@
     </ul>
 
 
-    <a href="#">Shorten your URL</a>
 
     Hello part 1
         
