@@ -105,12 +105,7 @@ app.post('/login', (req, res) => {
 app.post('/logout', (req, res) => {
     res.clearCookie("username");
     res.redirect('/urls/') // to redirect to the page which shows his newly created tiny URL
-
 })
-
-
-
-
 
 
 
