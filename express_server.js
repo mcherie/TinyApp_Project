@@ -77,6 +77,18 @@ app.post('/urls/:shortURL/delete', (req, res) => {
     res.redirect('/urls') // to redirect to the page which shows his newly created tiny URL
 })
 
+
+
+
+app.post('/urls/:shortURL/update', (req, res) => {
+    const shortURL = req.params.shortURL
+    const newLongURL = req.body.longURL
+    urlDatabase[shortURL] = newLongURL // to add this new info into the urlDatabase
+    // urlDatabase[req.params.shortURL] = req.body.longURL
+    res.redirect('/urls/') // to redirect to the page which shows his newly created tiny URL
+})
+
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`)
 })
