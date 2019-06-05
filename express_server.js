@@ -13,7 +13,7 @@ var urlDatabase = {
 };
 
 function generateRandomString() {
-    return  Math.floor((1 + Math.random()) * 0x10000).toString(36).substring(1);
+    return  Math.floor((1 + Math.random()) * 0x10000000).toString(36);
 }
 
 app.get("/", (req, res) => {
@@ -55,4 +55,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
+  console.log(generateRandomString());
 });
+
+
