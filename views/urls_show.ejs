@@ -20,10 +20,30 @@
 
     <a href="#">Create New TinyURL</a>
 
+    <br>
+    <br>
     <h4> My URLs </h4>
+    <br>
+    <br>
+ 
+    <!-- <a href = "/u/:shortURL" ><%=shortURL%></a> - <%= longURL %>  -->
+
+    <a href="<%= longURL %>"><%= shortURL %></a> - <%= longURL %>
+
+    <!-- <a href = "/u/<%= longURL %>" > <%=shortURL%> </a>  -->
+    
+    
+    
+    <!-- - <%= longURL %> -->
+    
+    <!-- <a href=shortURL> <%= shortURL %> </a> - <%= longURL %>
+
+    <a href="/u/:shortURL"> <%= shortURL %> </a> - <%= longURL %> -->
+
+    <!-- <a href=“/u/<%= shortURL %>“><%= shortURL %></p> - <%= longURL %> -->
 
 
-    <%= shortURL %> - <%= longURL %>
+    
      
     <br>
     <br>
@@ -36,7 +56,6 @@
     <br>
 
 
-    ~Hello part 2~
 
 </body>
 
