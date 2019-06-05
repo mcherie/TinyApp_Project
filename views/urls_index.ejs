@@ -19,7 +19,7 @@
 <body style="font-size:20px; padding:50px;">
     <!-- Add EJS code here -->
 
-    <a href="#">Create New TinyURL</a>
+    <a href="/urls/new">Create New TinyURL</a>
 
     <h4> My URLs </h4>
 
@@ -28,14 +28,14 @@
             <li>
                  <a href ="<%= urls[urlProperty] %>"><%= urlProperty %></a> 
                 - <%= urls[urlProperty] %>
-                
-                    <form method="POST" action="/urls/:shortURL/delete"> 
-                        <button type="submit" class="btn btn-primary">
-                            <!-- <a href = "/urls/:shortURL/delete"> -->
-                                Delete 
-                            <!-- </a> -->
-                        </button>
-                    </form>
+                     
+                                <form method="POST" action="/urls/<%=urlProperty%>/delete">
+                                    <a href = "/urls/<%= urlProperty %>/delete">
+                                        <button type="submit" class="btn btn-primary">
+                                        Delete 
+                                        </button>
+                                    </a>
+                                </form>
             </li>
         <% }; %>
     </ul>

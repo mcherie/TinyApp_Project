@@ -73,9 +73,8 @@ app.get('/urls/:shortURL', (req, res) => {
 })
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-    delete urlProperty
+    delete urlDatabase[req.params.shortURL]
     res.redirect('/urls') // to redirect to the page which shows his newly created tiny URL
-    // res.render('urls_index', templateVars)
 })
 
 app.listen(PORT, () => {
