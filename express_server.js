@@ -72,6 +72,12 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars)
 })
 
+app.post('/urls/:shortURL/delete', (req, res) => {
+    delete urlProperty
+    res.redirect('/urls') // to redirect to the page which shows his newly created tiny URL
+    // res.render('urls_index', templateVars)
+})
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`)
 })

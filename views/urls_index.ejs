@@ -25,15 +25,24 @@
 
     <ul>
         <% for (var urlProperty in urls) { %>
-            <li><%= urlProperty %> - <%= urls[urlProperty] %></li>
+            <li>
+                 <a href ="<%= urls[urlProperty] %>"><%= urlProperty %></a> 
+                - <%= urls[urlProperty] %>
+                
+                    <form method="POST" action="/urls/:shortURL/delete"> 
+                        <button type="submit" class="btn btn-primary">
+                            <!-- <a href = "/urls/:shortURL/delete"> -->
+                                Delete 
+                            <!-- </a> -->
+                        </button>
+                    </form>
+            </li>
         <% }; %>
     </ul>
 
 
 
-        
-        
-
+abcdefg
 
 </body>
 
