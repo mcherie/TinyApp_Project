@@ -15,6 +15,20 @@ var urlDatabase = {
   '9sm5xK': 'http://www.google.com'
 }
 
+const users = { 
+    "userRandomID": {
+      id: "userRandomID", 
+      email: "user@example.com", 
+      password: "purple-monkey-dinosaur"
+    },
+   "user2RandomID": {
+      id: "user2RandomID", 
+      email: "user2@example.com", 
+      password: "dishwasher-funk"
+    }
+}
+
+
 function generateRandomString () {
   return Math.floor((1 + Math.random()) * 0x10000000).toString(36)
 }
@@ -107,8 +121,85 @@ app.post('/logout', (req, res) => {
     res.redirect('/urls/') // to redirect to the page which shows his newly created tiny URL
 })
 
+app.post('/login', (req, res) => {
+    const username = req.body.username
+    res.cookie("username", username)
+    // res.send("Okay")
+    res.redirect('/urls/') // to redirect to the page which shows his newly created tiny URL
+})
+
+app.get('/register', (req, res) => {
+    let templateVars = {
+        shortURL: req.params.shortURL,
+        longURL: urlDatabase[req.params.shortURL],
+        username: req.cookies.username
+    }
+    res.render('urls_register.ejs', templateVars)
+})
+
+
+const doesUserExist = (email) => {
+    let userExists = false;
+
+    // const allKeys = Object.keys(users);
+
+    // allKeys.forEach((key) => {
+    //     const currentUser = users[key];
+    //     const currentUserEmail = currentUser.email.toLowerCase();
+
+    //     if(email.toLowerCase() === currentUserEmail) {
+    //         userExists = true;
+    //         break;
+    //     }
+    // });
+
+    // return userExists
+
+    Object.values(users).forEach((element) => {
+        if(email.toLowerCase() == element.email.toLowerCase()) {
+            userExists = true;
+        }
+    });
+    return userExists;
+}
+
+app.post('/register', (req, res) => {
+    
+    const newUserRandomID = generateRandomString()
+    const email = req.body.email
+    const password = req.body.password
+
+    if (email === "" || password === "") {
+        res.status(400);
+        res.render("status code error ;p Email or Password can not be empty");
+    }
+
+    const userExists = doesUserExist(email);
+    if(userExists) {
+        res.status(400);
+        res.render("status code error ;p User already exists");
+    }
+// vreation of new person
+    const eachUser = {
+        id: newUserRandomID,
+        email,
+        password,
+    };
+// insertion of ew
+    users[newUserRandomID] = eachUser;
+
+    console.log(users)
+
+    res.cookie("user_id", newUserRandomID)
+    // username: req.cookies.username
+    res.redirect('/urls/')
+})
+
 
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`)
 })
+
+
+
