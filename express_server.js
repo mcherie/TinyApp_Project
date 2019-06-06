@@ -46,17 +46,21 @@ app.get('/hello', (req, res) => {
 })
 
 app.get('/urls', (req, res) => {
+    let user_id = req.cookies.user_id;
+    user = users[user_id]
+
   let templateVars = { 
         urls: urlDatabase,
-        username: req.cookies.username
-}
+        user: user
+    }
   res.render('urls_index', templateVars) // redirect //
 })
 
 app.get('/urls/new', (req, res) => {
     let templateVars = {
-        username: req.cookies.username
-      }
+        // username: req.cookies.username,
+        user: user
+    }
   res.render('urls_new', templateVars)
 })
 
@@ -82,24 +86,29 @@ app.post('/urls', (req, res) => {
   res.redirect('/urls/' + newShortURL) // to redirect to the page which shows his newly created tiny URL
 })
 
+
 app.get('/u/:shortURL', (req, res) => {
   const longURL = req.body.longURL
   res.redirect(longURL)
 })
 
+
 app.get('/urls/:shortURL', (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies.username
-  }
+    // username: req.cookies.username,
+    user: user
+}
   res.render('urls_show', templateVars)
 })
+
 
 app.post('/urls/:shortURL/delete', (req, res) => {
     delete urlDatabase[req.params.shortURL]
     res.redirect('/urls') // to redirect to the page which shows his newly created tiny URL
 })
+
 
 app.post('/urls/:shortURL/update', (req, res) => {
     const shortURL = req.params.shortURL
@@ -109,91 +118,108 @@ app.post('/urls/:shortURL/update', (req, res) => {
     res.redirect('/urls/') // to redirect to the page which shows his newly created tiny URL
 })
 
+
 app.post('/login', (req, res) => {
-    const username = req.body.username
-    res.cookie("username", username)
-    // res.send("Okay")
+
+    const email = req.body.email
+    // const password = req.body.password
+    const user = doesUserExist(email)
+    // let user = users[user_id]
+    if (!user) {
+        res.status(403);
+        res.send("User cannot be found");
+    } else if (user) {
+            if (req.body.password !== user["password"]) {
+            res.status(403);
+            res.send("Password incorrect");
+        }
+    }  
+    // res.cookie("username", username)
+    res.cookie("user_id", user.id)
     res.redirect('/urls/') // to redirect to the page which shows his newly created tiny URL
 })
+
 
 app.post('/logout', (req, res) => {
-    res.clearCookie("username");
-    res.redirect('/urls/') // to redirect to the page which shows his newly created tiny URL
-})
-
-app.post('/login', (req, res) => {
-    const username = req.body.username
-    res.cookie("username", username)
-    // res.send("Okay")
+    // res.clearCookie("username");
+    res.clearCookie("user_id");
     res.redirect('/urls/') // to redirect to the page which shows his newly created tiny URL
 })
 
 app.get('/register', (req, res) => {
     let templateVars = {
-        shortURL: req.params.shortURL,
-        longURL: urlDatabase[req.params.shortURL],
-        username: req.cookies.username
+        // shortURL: req.params.shortURL,
+        // longURL: urlDatabase[req.params.shortURL],
+        // username: req.cookies.username,
+
+        // user: users[user.id]
     }
     res.render('urls_register.ejs', templateVars)
 })
 
-
+// Dry function to look up if email exists
 const doesUserExist = (email) => {
-    let userExists = false;
-
-    // const allKeys = Object.keys(users);
-
-    // allKeys.forEach((key) => {
-    //     const currentUser = users[key];
-    //     const currentUserEmail = currentUser.email.toLowerCase();
-
-    //     if(email.toLowerCase() === currentUserEmail) {
-    //         userExists = true;
-    //         break;
-    //     }
-    // });
-
-    // return userExists
-
+    let user = false;
     Object.values(users).forEach((element) => {
-        if(email.toLowerCase() == element.email.toLowerCase()) {
-            userExists = true;
-        }
-    });
-    return userExists;
+        if ( email.toLowerCase() === element.email.toLowerCase()) {
+            user = element;
+        } 
+    })  
+    return user;
 }
 
+
 app.post('/register', (req, res) => {
+    // __________________________________________
     
-    const newUserRandomID = generateRandomString()
     const email = req.body.email
     const password = req.body.password
 
     if (email === "" || password === "") {
         res.status(400);
-        res.render("status code error ;p Email or Password can not be empty");
-    }
-
-    const userExists = doesUserExist(email);
-    if(userExists) {
+        res.send("Status code error ;p Email or Password can not be empty");
+    } else if (doesUserExist(email)) {
         res.status(400);
-        res.render("status code error ;p User already exists");
-    }
-// vreation of new person
-    const eachUser = {
+        res.send("Status code error ;p User already exists");
+    } else {
+        // Creation of new person
+        const newUserRandomID = generateRandomString()
+
+        const eachUser = {
         id: newUserRandomID,
         email,
         password,
     };
-// insertion of ew
+// Insertion of new person
     users[newUserRandomID] = eachUser;
-
-    console.log(users)
-
     res.cookie("user_id", newUserRandomID)
+    console.log(res.cookie)
     // username: req.cookies.username
     res.redirect('/urls/')
+    }
 })
+
+
+app.get('/login', (req, res) => {
+    let templateVars = {
+        // shortURL: req.params.shortURL,
+        // longURL: urlDatabase[req.params.shortURL],
+        // username: req.cookies.username,
+        // urls: urlDatabase,
+        // user: user
+    }
+    res.render('urls_login.ejs', templateVars)
+})
+
+
+
+
+
+
+
+
+
+
 
 
 
