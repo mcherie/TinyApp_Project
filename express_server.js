@@ -28,7 +28,7 @@ const users = {
     }
 }
 
-
+// This generates the randoms string for both the tiny app and userID 
 function generateRandomString () {
   return Math.floor((1 + Math.random()) * 0x10000000).toString(36)
 }
@@ -64,11 +64,13 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars)
 })
 
+
 app.post('/urls', (req, res) => {
   // console.log(req.body);  // Log the POST request body to the console
-  let newShortURL = generateRandomString() // to generate a new random string
+//   let newShortURL = generateRandomString() // to generate a new random string ***** PUT THIS BACK!!!
+  console.log(req.body)
   // console.log(newShortURL)
-
+// THIS WHOLE COMMENTED PART IS IF I WANT TO DO A FIX OF ADDING HTTP AT THE BEGINNING IF THE CLIENT DIDN'T
     // const formattedURL = function(incomingLongURL) {
     //     let something 
     //     if (incomingLongURL.startsWith("http")) {
@@ -81,11 +83,24 @@ app.post('/urls', (req, res) => {
 
 // I can declare a new variable here to use, then replace the req.body.longURL later with incomingLongURL
     // const incomingLongURL = req.body.longURL 
-  urlDatabase[newShortURL] = req.body.longURL // to add this new info into the urlDatabase
-  console.log(urlDatabase) // just for me to see if it got added to the database
+    const newShortURL = generateRandomString();
+    const userID = generateRandomString();
+    urlDatabase[newShortURL] = {} // to add this new info into the urlDatabase PUT THIS BACK!!!
+
+// Creation of the new object url id
+const newUserRandomID = generateRandomString()
+
+    urlDatabase[newShortURL] = {
+    longURL: req.body.longURL,
+    userID
+};
+// Insertion of new person to the object
+res.cookie("user_id", newUserRandomID)
+console.log(res.cookie)
+// username: req.cookies.username
+console.log(urlDatabase) // just for me to see if it got added to the database
   res.redirect('/urls/' + newShortURL) // to redirect to the page which shows his newly created tiny URL
 })
-
 
 app.get('/u/:shortURL', (req, res) => {
   const longURL = req.body.longURL
@@ -106,7 +121,11 @@ app.get('/urls/:shortURL', (req, res) => {
 
 app.post('/urls/:shortURL/delete', (req, res) => {
     delete urlDatabase[req.params.shortURL]
-    res.redirect('/urls') // to redirect to the page which shows his newly created tiny URL
+    if (req.cookies.user_id) { // if the are logged in
+        res.redirect('/urls/')
+    } else { // if they are not loggged in, then bring them to the log in page
+        res.redirect('/login')
+    }
 })
 
 
@@ -115,7 +134,13 @@ app.post('/urls/:shortURL/update', (req, res) => {
     const newLongURL = req.body.longURL
     urlDatabase[shortURL] = newLongURL // to add this new info into the urlDatabase
     // urlDatabase[req.params.shortURL] = req.body.longURL
-    res.redirect('/urls/') // to redirect to the page which shows his newly created tiny URL
+    console.log("string", res.cookie.user_id);
+    console.log("req part", req.cookies);
+    if (req.cookies.user_id) { // if they are logged in, they can continue
+        res.redirect('/urls/') 
+    } else { // if they are not logged in go back to login
+        res.redirect('/login')
+    }
 })
 
 
@@ -143,7 +168,7 @@ app.post('/login', (req, res) => {
 app.post('/logout', (req, res) => {
     // res.clearCookie("username");
     res.clearCookie("user_id");
-    res.redirect('/urls/') // to redirect to the page which shows his newly created tiny URL
+    res.redirect('/login') 
 })
 
 app.get('/register', (req, res) => {
@@ -151,7 +176,6 @@ app.get('/register', (req, res) => {
         // shortURL: req.params.shortURL,
         // longURL: urlDatabase[req.params.shortURL],
         // username: req.cookies.username,
-
         // user: users[user.id]
     }
     res.render('urls_register.ejs', templateVars)
@@ -182,7 +206,7 @@ app.post('/register', (req, res) => {
         res.status(400);
         res.send("Status code error ;p User already exists");
     } else {
-        // Creation of new person
+    // Creation of new person
         const newUserRandomID = generateRandomString()
 
         const eachUser = {
@@ -190,7 +214,7 @@ app.post('/register', (req, res) => {
         email,
         password,
     };
-// Insertion of new person
+// Insertion of new person to the object
     users[newUserRandomID] = eachUser;
     res.cookie("user_id", newUserRandomID)
     console.log(res.cookie)
