@@ -152,8 +152,13 @@ console.log(urlDatabase) // just for me to see if it got added to the database
 })
 
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = req.body.longURL
-  res.redirect(longURL)
+    const url = urlDatabase[req.params.shortURL]
+
+    if (url) {
+        res.redirect(url.longURL)
+    } else {
+        res.status(404).send("Short URL does not exist");
+    }
 })
 
 
@@ -177,6 +182,7 @@ app.get('/urls/:shortURL', (req, res) => {
 
 app.post('/urls/:shortURL/delete', (req, res) => {
     const userId = req.cookies.user_id;
+
     if (userId) { // if the are logged in
         // Get short url from DB
         const urlItem = urlDatabase[req.params.shortURL];
@@ -217,9 +223,7 @@ app.post('/urls/:shortURL/update', (req, res) => {
         longURL: req.body.longURL,
         userID: userID
     };
-    // Insertion of new person to the object
-    
-
+    // Insertion of new person to the object    
 
     if (req.cookies.user_id) { // if they are logged in, they can continue
         res.redirect('/urls/' + shortURL);
