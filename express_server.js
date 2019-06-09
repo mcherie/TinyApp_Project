@@ -11,7 +11,9 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.set('view engine', 'ejs')
-  
+
+const passwordSalt = 10;
+
 const urlDatabase = {
     b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
     i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
@@ -21,16 +23,14 @@ const users = {
     "userRandomID": {
       id: "aJ48lW", 
       email: "user@example.com", 
-      password: "purple-monkey-dinosaur"
+      password: bcrypt.hashSync("purple-monkey-dinosaur", passwordSalt)
     },
     "user2RandomID": {
       id: "user2RandomID", 
       email: "user2@example.com", 
-      password: "dishwasher-funk"
+      password: bcrypt.hashSync("dishwasher-funk", passwordSalt)
     }
 }
-
-const passwordSalt = 10;
 
 // This generates the randoms string for both the tiny app and userID 
 function generateRandomString () {
@@ -319,8 +319,7 @@ app.post('/register', (req, res) => {
         res.cookie("user_id", newUserRandomID)
         console.log(res.cookie)
 
-        console.log("*************************** : user : 2", users)
-
+        console.log(users);
         // username: req.cookies.username
         res.redirect('/urls/')
     }
