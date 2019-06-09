@@ -1,4 +1,6 @@
-var express = require('express')
+const express = require('express')
+const bcrypt = require('bcrypt');
+
 var app = express()
 var PORT = 8080 // default port 8080
 
@@ -27,6 +29,8 @@ const users = {
       password: "dishwasher-funk"
     }
 }
+
+const passwordSalt = "lighthouse-labs";
 
 // This generates the randoms string for both the tiny app and userID 
 function generateRandomString () {
@@ -268,6 +272,7 @@ app.get('/register', (req, res) => {
         // username: req.cookies.username,
         // user: users[user.id]
     }
+
     res.render('urls_register.ejs', templateVars)
 })
 
@@ -285,9 +290,9 @@ const doesUserExist = (email) => {
 
 app.post('/register', (req, res) => {
     // __________________________________________
-    
     const email = req.body.email
     const password = req.body.password
+    const hashedPassword = bcrypt.hashSync(password, passwordSalt);
 
     if (email === "" || password === "") {
         res.status(400);
@@ -296,23 +301,24 @@ app.post('/register', (req, res) => {
         res.status(400);
         res.send("Status code error ;p User already exists");
     } else {
-    // Creation of new person
+        // Creation of new person
         const newUserRandomID = generateRandomString()
 
         const eachUser = {
-        id: newUserRandomID,
-        email,
-        password,
-    };
-// Insertion of new person to the object
-    users[newUserRandomID] = eachUser;
-    res.cookie("user_id", newUserRandomID)
-    console.log(res.cookie)
+            id: newUserRandomID,
+            email,
+            password: hashedPassword
+        };
 
-    console.log("*************************** : user : 2", users)
+        // Insertion of new person to the object
+        users[newUserRandomID] = eachUser;
+        res.cookie("user_id", newUserRandomID)
+        console.log(res.cookie)
 
-    // username: req.cookies.username
-    res.redirect('/urls/')
+        console.log("*************************** : user : 2", users)
+
+        // username: req.cookies.username
+        res.redirect('/urls/')
     }
 })
 
