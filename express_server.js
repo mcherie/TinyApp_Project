@@ -30,7 +30,7 @@ const users = {
     }
 }
 
-const passwordSalt = "lighthouse-labs";
+const passwordSalt = 10;
 
 // This generates the randoms string for both the tiny app and userID 
 function generateRandomString () {
@@ -243,18 +243,22 @@ app.post('/login', (req, res) => {
     // const password = req.body.password
     const user = doesUserExist(email)
     // let user = users[user_id]
+
     if (!user) {
         res.status(403);
         res.send("User cannot be found");
     } else if (user) {
-            if (req.body.password !== user["password"]) {
+        const password = req.body.password;
+        const hashedPassword = user["password"];
+
+        if (bcrypt.compareSync(password, hashedPassword)) {
+            res.cookie("user_id", user.id)
+            res.redirect('/urls/') // to redirect to the page which shows his newly created tiny URL
+        } else {
             res.status(403);
             res.send("Password incorrect");
         }
-    }  
-    // res.cookie("username", username)
-    res.cookie("user_id", user.id)
-    res.redirect('/urls/') // to redirect to the page which shows his newly created tiny URL
+    }
 })
 
 
