@@ -25,24 +25,27 @@
     <br>
     <br>
 
-    <h4> My URLs </h4>
+    <% if (user) { %>
+        <h4>My URLs</h4>
 
-    <ul>
-        <% for (var urlProperty in urls) { %>
-            <li>
-                
-                 <a href ="<%= urls[urlProperty] %>"><%= urlProperty %></a> 
-                - <%= urls[urlProperty] %>
-                     
-                                <form method="POST" action="/urls/<%=urlProperty%>/delete">
-                                    <button type="submit" class="btn btn-primary">
-                                        Delete 
-                                    </button>
-                                </form>
-            </li>
-        <% }; %>
-    </ul>
-
+        <ul>
+            <% for (var urlProperty in urls) { %>
+                <li>
+                     <a href="<%= urlProperty %>"><%= urlProperty %></a> 
+                    - <%= urls[urlProperty].longURL %>
+                         
+                    <form method="POST" action="/urls/<%= urlProperty %>/delete">
+                        <button type="submit" class="btn btn-primary">
+                            Delete 
+                        </button>
+                    </form>
+                                    
+                </li>
+            <% }; %>
+        </ul>
+    <% } else { %>
+        You must <a href = "/login" >Login</a> or <a href = "/register">Register</a> first
+    <% } %>
 
 </body>
 

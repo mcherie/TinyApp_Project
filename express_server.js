@@ -9,19 +9,19 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.set('view engine', 'ejs')
-
-var urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
-}
+  
+const urlDatabase = {
+    b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+    i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
+};
 
 const users = { 
     "userRandomID": {
-      id: "userRandomID", 
+      id: "aJ48lW", 
       email: "user@example.com", 
       password: "purple-monkey-dinosaur"
     },
-   "user2RandomID": {
+    "user2RandomID": {
       id: "user2RandomID", 
       email: "user2@example.com", 
       password: "dishwasher-funk"
@@ -45,31 +45,81 @@ app.get('/hello', (req, res) => {
   res.send('<html><body>Hello <b>World</b></body></html>\n')
 })
 
+function urlsForUser(id) {
+    let urls = {};
+
+    for (let shortURL in urlDatabase) {
+        let url = urlDatabase[shortURL];
+        
+        if (url.userId === id) {
+            urls[shortURL] = url;
+        }
+    }
+
+    return urls;
+}
+
+// const urlsForUser = id => {
+//     const urlsForCurrentUser = {}
+//     Object.keys(urlDatabase).forEach(key => {
+//         const val = urlDatabase[key];
+
+//         if (id === val.userID) {
+//             const url = val.longURL;
+//             const element = {};
+//             element[key] = url;
+
+//             Object.assign(urlsForCurrentUser, element)
+//         }
+//     })
+
+//     console.log('\n', urlsForCurrentUser, '\n')
+
+//     return urlsForCurrentUser
+// }
+
+
 app.get('/urls', (req, res) => {
     let user_id = req.cookies.user_id;
-    user = users[user_id]
 
-  let templateVars = { 
-        urls: urlDatabase,
+    // console.log("***************", user_id)
+
+    let user = users[user_id]
+
+
+    // console.log('\n', "************* : user : 1", '\n', users, '\n', urlDatabase, '\n')
+
+
+    let templateVars = { 
+        urls: urlsForUser(user_id),
         user: user
     }
-  res.render('urls_index', templateVars) // redirect //
+    res.render('urls_index', templateVars) // redirect //
 })
 
 app.get('/urls/new', (req, res) => {
+    let user_id = req.cookies.user_id;
+    let user = users[user_id]
+
+    if (!user) { // if they are not logged in, they can not continue
+        res.redirect("/login");
+    }
+
     let templateVars = {
         // username: req.cookies.username,
         user: user
     }
-  res.render('urls_new', templateVars)
+    res.render('urls_new', templateVars)
 })
 
 
 app.post('/urls', (req, res) => {
   // console.log(req.body);  // Log the POST request body to the console
 //   let newShortURL = generateRandomString() // to generate a new random string ***** PUT THIS BACK!!!
-  console.log(req.body)
+//   console.log(req.body)
   // console.log(newShortURL)
+console.log("_____________________POST('urls'_____________________________________")
+
 // THIS WHOLE COMMENTED PART IS IF I WANT TO DO A FIX OF ADDING HTTP AT THE BEGINNING IF THE CLIENT DIDN'T
     // const formattedURL = function(incomingLongURL) {
     //     let something 
@@ -83,20 +133,19 @@ app.post('/urls', (req, res) => {
 
 // I can declare a new variable here to use, then replace the req.body.longURL later with incomingLongURL
     // const incomingLongURL = req.body.longURL 
-    const newShortURL = generateRandomString();
-    const userID = generateRandomString();
-    urlDatabase[newShortURL] = {} // to add this new info into the urlDatabase PUT THIS BACK!!!
+    var newShortURL = generateRandomString();
+    const userID = req.cookies.user_id;
+    // urlDatabase[newShortURL] = {} // to add this new info into the urlDatabase PUT THIS BACK!!!
 
 // Creation of the new object url id
-const newUserRandomID = generateRandomString()
+// const newUserRandomID = generateRandomString()
 
     urlDatabase[newShortURL] = {
     longURL: req.body.longURL,
     userID
 };
 // Insertion of new person to the object
-res.cookie("user_id", newUserRandomID)
-console.log(res.cookie)
+res.cookie("user_id", userID)
 // username: req.cookies.username
 console.log(urlDatabase) // just for me to see if it got added to the database
   res.redirect('/urls/' + newShortURL) // to redirect to the page which shows his newly created tiny URL
@@ -109,19 +158,40 @@ app.get('/u/:shortURL', (req, res) => {
 
 
 app.get('/urls/:shortURL', (req, res) => {
-  let templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
-    // username: req.cookies.username,
-    user: user
-}
-  res.render('urls_show', templateVars)
+    let user_id = req.cookies.user_id;
+    let user = users[user_id];
+    let shortURL = req.params.shortURL;
+    let urlObject = urlDatabase[shortURL];
+    let longURL = urlObject.longURL;
+    let urlUserId = urlObject.userId;
+
+    let templateVars = {
+        shortURL: shortURL,
+        longURL: longURL,
+        urlUserId: urlUserId,
+        user: user
+    }
+
+    res.render('urls_show', templateVars)
 })
 
-
 app.post('/urls/:shortURL/delete', (req, res) => {
-    delete urlDatabase[req.params.shortURL]
-    if (req.cookies.user_id) { // if the are logged in
+    const userId = req.cookies.user_id;
+    if (userId) { // if the are logged in
+        // Get short url from DB
+        const urlItem = urlDatabase[req.params.shortURL];
+
+        console.log("\nItem to be deleted", urlItem)
+
+
+        console.log("\nChecking User", userId, urlItem.userID)
+
+        // Check if the url belongs to current user
+        if (userId === urlItem.userID) {
+            // Only allow deletion if user is logged in
+            delete urlDatabase[req.params.shortURL]
+        }
+
         res.redirect('/urls/')
     } else { // if they are not loggged in, then bring them to the log in page
         res.redirect('/login')
@@ -134,10 +204,25 @@ app.post('/urls/:shortURL/update', (req, res) => {
     const newLongURL = req.body.longURL
     urlDatabase[shortURL] = newLongURL // to add this new info into the urlDatabase
     // urlDatabase[req.params.shortURL] = req.body.longURL
-    console.log("string", res.cookie.user_id);
-    console.log("req part", req.cookies);
+    // console.log("string", res.cookie.user_id);
+    // console.log("req part", req.cookies);
+    console.log("_____________________POST('/update'_____________________________________")
+    
+    const userID = req.cookies.user_id;
+    res.cookie("user_id", userID)
+
+
+
+    urlDatabase[shortURL] = {
+        longURL: req.body.longURL,
+        userID: userID
+    };
+    // Insertion of new person to the object
+    
+
+
     if (req.cookies.user_id) { // if they are logged in, they can continue
-        res.redirect('/urls/') 
+        res.redirect('/urls/' + shortURL);
     } else { // if they are not logged in go back to login
         res.redirect('/login')
     }
@@ -168,7 +253,8 @@ app.post('/login', (req, res) => {
 app.post('/logout', (req, res) => {
     // res.clearCookie("username");
     res.clearCookie("user_id");
-    res.redirect('/login') 
+    user = null;
+    res.redirect('/login');
 })
 
 app.get('/register', (req, res) => {
@@ -218,6 +304,9 @@ app.post('/register', (req, res) => {
     users[newUserRandomID] = eachUser;
     res.cookie("user_id", newUserRandomID)
     console.log(res.cookie)
+
+    console.log("*************************** : user : 2", users)
+
     // username: req.cookies.username
     res.redirect('/urls/')
     }
