@@ -63,8 +63,10 @@ function urlsForUser(id) {
 
     for (let shortURL in urlDatabase) {
         let url = urlDatabase[shortURL];
+
+        console.log(url);
         
-        if (url.userId === id) {
+        if (url.userID === id) {
             urls[shortURL] = url;
         }
     }
@@ -98,7 +100,6 @@ app.get('/urls', (req, res) => {
     // console.log("***************", user_id)
 
     let user = users[user_id]
-
 
     // console.log('\n', "************* : user : 1", '\n', users, '\n', urlDatabase, '\n')
 

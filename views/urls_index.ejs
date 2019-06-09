@@ -29,12 +29,11 @@
         <h4>My URLs</h4>
 
         <ul>
-            <% for (var urlProperty in urls) { %>
+            <% for (var shortURL in urls) { %>
                 <li>
-                     <a href="<%= urlProperty %>"><%= urlProperty %></a> 
-                    - <%= urls[urlProperty].longURL %>
+                    <a href="<%= shortURL %>"><%= shortURL %></a> - <%= urls[shortURL].longURL %>
                          
-                    <form method="POST" action="/urls/<%= urlProperty %>/delete">
+                    <form method="POST" action="/urls/<%= shortURL %>/delete">
                         <button type="submit" class="btn btn-primary">
                             Delete 
                         </button>
